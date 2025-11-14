@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroSense - Smart Agriculture Monitoring</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+                <h1>AgroSense</h1>
+            </div>
+            <div class="last-updated">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span id="lastUpdated">Loading...</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sensor Cards -->
+            <div class="cards-grid">
+                <!-- Temperature Card -->
+                <div class="card temperature-card fade-in">
+                    <div class="card-header">
+                        <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+                        </svg>
+                        <h2>Temperature</h2>
+                    </div>
+                    <div class="card-value">
+                        <span id="temperatureValue" class="value-number">--</span>
+                        <span class="value-unit">°C</span>
+                    </div>
+                    <div class="card-status" id="tempStatus">
+                        <div class="status-dot"></div>
+                        <span>Monitoring...</span>
+                    </div>
+                </div>
+
+                <!-- Humidity Card -->
+                <div class="card humidity-card fade-in">
+                    <div class="card-header">
+                        <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                        </svg>
+                        <h2>Humidity</h2>
+                    </div>
+                    <div class="card-value">
+                        <span id="humidityValue" class="value-number">--</span>
+                        <span class="value-unit">%</span>
+                    </div>
+                    <div class="card-status" id="humidityStatus">
+                        <div class="status-dot"></div>
+                        <span>Monitoring...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="chart-container fade-in">
+                <h2 class="section-title">Real-Time Data Trends</h2>
+                <canvas id="dataChart"></canvas>
+            </div>
+
+            <!-- Insights Section -->
+            <div class="insights-section fade-in">
+                <h2 class="section-title">
+                    <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Insights for Farmers
+                </h2>
+                <div id="insightsContainer" class="insights-grid">
+                    <!-- Insights will be dynamically generated here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 AgroSense. Smart Agriculture Monitoring System</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
