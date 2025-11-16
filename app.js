@@ -15,6 +15,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
+
+const GEMINI_API_KEY = "AIzaSyCJUVIq4FY49jnMimkIdmQ-DE_0vhAKu7k";
+let genAI = null;
+let model = null;
+
 // ==================== 
 // Global Variables
 // ==================== 
@@ -23,6 +28,10 @@ let humidityData = [];
 let timeLabels = [];
 let chart = null;
 const MAX_DATA_POINTS = 20;
+
+// Current sensor readings for AI context
+let currentTemperature = null;
+let currentHumidity = null;
 
 // ==================== 
 // DOM Elements
@@ -33,6 +42,13 @@ const lastUpdatedEl = document.getElementById('lastUpdated');
 const tempStatusEl = document.getElementById('tempStatus');
 const humidityStatusEl = document.getElementById('humidityStatus');
 const insightsContainerEl = document.getElementById('insightsContainer');
+
+// Chatbot elements
+const toggleChatBtn = document.getElementById('toggleChatBtn');
+const chatbotContent = document.getElementById('chatbotContent');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
 
 // ==================== 
 // Initialize Chart
@@ -361,6 +377,9 @@ function setupRealtimeListeners() {
         const temperature = snapshot.val();
         
         if (temperature !== null) {
+            // Store for AI context
+            currentTemperature = temperature;
+            
             // Update UI
             temperatureValueEl.textContent = temperature.toFixed(1);
             
@@ -395,6 +414,9 @@ function setupRealtimeListeners() {
         const humidity = snapshot.val();
         
         if (humidity !== null) {
+            // Store for AI context
+            currentHumidity = humidity;
+            
             // Update UI
             humidityValueEl.textContent = humidity.toFixed(1);
             
@@ -417,6 +439,135 @@ function setupRealtimeListeners() {
 }
 
 // ==================== 
+// AI Chatbot Functions
+// ==================== 
+// Proper Gemini endpoint with gemini-2.0-flash
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+function toggleChatbot() {
+    chatbotContent.classList.toggle("collapsed");
+    toggleChatBtn.classList.toggle("collapsed");
+}
+
+function addMessage(content, isUser = false) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `chat-message ${isUser ? "user-message" : "bot-message"}`;
+
+    const avatar = `
+        <div class="message-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                ${isUser ? 
+                    '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>' :
+                    '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/>'
+                }
+            </svg>
+        </div>
+    `;
+
+    messageDiv.innerHTML = `
+        ${avatar}
+        <div class="message-content"><p>${content}</p></div>
+    `;
+
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const typingDiv = document.createElement("div");
+    typingDiv.id = "typing-indicator";
+    typingDiv.className = "chat-message bot-message";
+    typingDiv.innerHTML = `
+        <div class="message-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10"/>
+            </svg>
+        </div>
+        <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const t = document.getElementById("typing-indicator");
+    if (t) t.remove();
+}
+
+async function sendMessageToAI(userMessage) {
+    if (!userMessage.trim()) return;
+
+    addMessage(userMessage, true);
+    chatInput.value = "";
+    showTypingIndicator();
+
+    const fullPrompt = `
+You are an agricultural assistant.
+Current Conditions:
+• Temperature: ${currentTemperature !== null ? currentTemperature.toFixed(1) + '°C' : 'Not available'}
+• Humidity: ${currentHumidity !== null ? currentHumidity.toFixed(1) + '%' : 'Not available'}
+
+Answer short (2–3 lines), practical, and farmer-friendly.
+
+Farmer's question: ${userMessage}
+`;
+
+    try {
+        const response = await fetch(GEMINI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        parts: [{ text: fullPrompt }]
+                    }
+                ]
+            })
+        });
+
+        const data = await response.json();
+
+        removeTypingIndicator();
+
+        let aiText = "Sorry, I couldn't generate a response.";
+
+        if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+            aiText = data.candidates[0].content.parts[0].text;
+        }
+
+        addMessage(aiText);
+    } catch (error) {
+        removeTypingIndicator();
+        console.error("AI Error:", error);
+        addMessage("⚠️ Error: Could not connect to AI. Check your API key or internet.");
+    }
+}
+
+function setupChatbotListeners() {
+    // Toggle chatbot
+    toggleChatBtn.addEventListener('click', toggleChatbot);
+    
+    // Send message on button click
+    sendBtn.addEventListener("click", () => {
+        sendMessageToAI(chatInput.value);
+    });
+    
+    // Send message on Enter key
+    chatInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessageToAI(chatInput.value);
+    });
+    
+    // Disable send button when input is empty
+    chatInput.addEventListener('input', () => {
+        sendBtn.disabled = chatInput.value.trim() === '';
+    });
+}
+
+// ==================== 
 // Initialize App
 // ==================== 
 function initApp() {
@@ -427,6 +578,9 @@ function initApp() {
     
     // Setup Firebase listeners
     setupRealtimeListeners();
+    
+    // Setup chatbot
+    setupChatbotListeners();
     
     // Initial update time
     updateLastUpdatedTime();

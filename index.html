@@ -36,41 +36,95 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Sensor Cards -->
-            <div class="cards-grid">
-                <!-- Temperature Card -->
-                <div class="card temperature-card fade-in">
-                    <div class="card-header">
-                        <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-                        </svg>
-                        <h2>Temperature</h2>
+            <!-- Top Grid: Sensors + AI Chatbot -->
+            <div class="top-grid">
+                <!-- Combined Sensor Card -->
+                <div class="sensors-combined-card fade-in">
+                    <!-- Temperature -->
+                    <div class="sensor-block temperature-block">
+                        <div class="card-header">
+                            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+                            </svg>
+                            <h2>Temperature</h2>
+                        </div>
+                        <div class="card-value">
+                            <span id="temperatureValue" class="value-number">--</span>
+                            <span class="value-unit">°C</span>
+                        </div>
+                        <div class="card-status" id="tempStatus">
+                            <div class="status-dot"></div>
+                            <span>Monitoring...</span>
+                        </div>
                     </div>
-                    <div class="card-value">
-                        <span id="temperatureValue" class="value-number">--</span>
-                        <span class="value-unit">°C</span>
-                    </div>
-                    <div class="card-status" id="tempStatus">
-                        <div class="status-dot"></div>
-                        <span>Monitoring...</span>
+
+                    <!-- Humidity -->
+                    <div class="sensor-block humidity-block">
+                        <div class="card-header">
+                            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                            </svg>
+                            <h2>Humidity</h2>
+                        </div>
+                        <div class="card-value">
+                            <span id="humidityValue" class="value-number">--</span>
+                            <span class="value-unit">%</span>
+                        </div>
+                        <div class="card-status" id="humidityStatus">
+                            <div class="status-dot"></div>
+                            <span>Monitoring...</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Humidity Card -->
-                <div class="card humidity-card fade-in">
-                    <div class="card-header">
-                        <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-                        </svg>
-                        <h2>Humidity</h2>
+                <!-- AI Chatbot Card -->
+                <div class="chatbot-section fade-in featured-chatbot">
+                    <div class="chatbot-header">
+                        <h2 class="section-title">
+                            <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            AI Farming Assistant
+                        </h2>
+                        <button id="toggleChatBtn" class="toggle-chat-btn">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="18 15 12 9 6 15"/>
+                            </svg>
+                        </button>
                     </div>
-                    <div class="card-value">
-                        <span id="humidityValue" class="value-number">--</span>
-                        <span class="value-unit">%</span>
-                    </div>
-                    <div class="card-status" id="humidityStatus">
-                        <div class="status-dot"></div>
-                        <span>Monitoring...</span>
+                    
+                    <div id="chatbotContent" class="chatbot-content">
+                        <div id="chatMessages" class="chat-messages">
+                            <div class="chat-message bot-message">
+                                <div class="message-avatar">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                        <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                        <line x1="15" y1="9" x2="15.01" y2="9"/>
+                                    </svg>
+                                </div>
+                                <div class="message-content">
+                                    <p>Hello! I'm your AI farming assistant. Ask me anything about your crops, soil, weather conditions, or farming techniques. I can provide personalized advice based on your current sensor data.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <input 
+                                type="text" 
+                                id="chatInput" 
+                                class="chat-input" 
+                                placeholder="Ask me anything about farming..."
+                                autocomplete="off"
+                            />
+                            <button id="sendBtn" class="send-btn">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
